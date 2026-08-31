@@ -37,14 +37,14 @@ export function VehicleDetailModal({ vehicle, open, onOpenChange }: Props) {
   if (!vehicle) return null;
 
   const specs = [
-    { label: "Brand", value: vehicle.brand },
-    { label: "Model", value: vehicle.name },
-    { label: "Year", value: String(vehicle.year) },
-    { label: "Mileage", value: `${formatNumber(vehicle.mileage)} KM` },
-    { label: "Transmission", value: vehicle.transmission },
-    { label: "Fuel Type", value: vehicle.fuel },
-    { label: "Category", value: vehicle.category },
-    { label: "Location", value: "Ras Al Khor, Dubai" },
+    { label: "Brand", value: vehicle.brand, show: true },
+    { label: "Model", value: vehicle.name, show: true },
+    { label: "Year", value: String(vehicle.year), show: true },
+    { label: "Mileage", value: `${formatNumber(vehicle.mileage)} KM`, show: vehicle.mileage > 0 },
+    { label: "Transmission", value: vehicle.transmission, show: true },
+    { label: "Fuel Type", value: vehicle.fuel, show: true },
+    { label: "Category", value: vehicle.category, show: true },
+    { label: "Location", value: "Ras Al Khor, Dubai", show: true },
   ];
 
   return (
@@ -102,14 +102,18 @@ export function VehicleDetailModal({ vehicle, open, onOpenChange }: Props) {
               </DialogDescription>
             </DialogHeader>
 
-            <p className="mt-3 text-2xl font-extrabold tracking-tight">
+            <p className={cn("mt-3 text-2xl font-extrabold tracking-tight", vehicle.price === 0 && "invisible")}>
               <span className="text-sm font-semibold text-muted-foreground">AED </span>
               {formatNumber(vehicle.price)}
             </p>
 
             <dl className="mt-5 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-border pt-5 text-sm">
               {specs.map((item) => (
-                <div key={item.label} className="min-w-0">
+                <div
+                  key={item.label}
+                  className={cn("min-w-0", !item.show && "invisible")}
+                  aria-hidden={!item.show}
+                >
                   <dt className="text-[0.7rem] tracking-wider text-muted-foreground uppercase">
                     {item.label}
                   </dt>
@@ -121,7 +125,7 @@ export function VehicleDetailModal({ vehicle, open, onOpenChange }: Props) {
             <div className="mt-auto flex flex-col gap-2 pt-6">
               <a
                 href={whatsappLink(
-                  `Hello AutoLink, I'm interested in the ${vehicle.name} (${vehicle.year}) listed at AED ${formatNumber(vehicle.price)}. Could you please share more details?`,
+                  `Hello AutoLink, I'm interested in the ${vehicle.name} (${vehicle.year})${vehicle.price > 0 ? ` listed at AED ${formatNumber(vehicle.price)}` : ""}. Could you please share more details?`,
                 )}
                 target="_blank"
                 rel="noopener noreferrer"

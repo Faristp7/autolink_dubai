@@ -13,10 +13,10 @@ export function VehicleCard({
   onViewDetails: (vehicle: Vehicle) => void;
 }) {
   const spec = [
-    { label: "Year", value: String(vehicle.year) },
-    { label: "Mileage", value: `${formatPrice(vehicle.mileage)} KM` },
-    { label: "Transmission", value: vehicle.transmission },
-    { label: "Fuel", value: vehicle.fuel },
+    { label: "Year", value: String(vehicle.year), show: true },
+    { label: "Mileage", value: `${formatPrice(vehicle.mileage)} KM`, show: vehicle.mileage > 0 },
+    { label: "Transmission", value: vehicle.transmission, show: true },
+    { label: "Fuel", value: vehicle.fuel, show: true },
   ];
 
   return (
@@ -43,7 +43,11 @@ export function VehicleCard({
 
         <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 border-t border-border pt-4 text-sm">
           {spec.map((item) => (
-            <div key={item.label} className="min-w-0">
+            <div
+              key={item.label}
+              className={`min-w-0 ${!item.show ? "invisible" : ""}`}
+              aria-hidden={!item.show}
+            >
               <dt className="text-[0.7rem] tracking-wider text-muted-foreground uppercase">
                 {item.label}
               </dt>
@@ -52,7 +56,7 @@ export function VehicleCard({
           ))}
         </dl>
 
-        <p className="mt-5 text-xl font-extrabold tracking-tight">
+        <p className={`mt-5 text-xl font-extrabold tracking-tight ${vehicle.price === 0 ? "invisible" : ""}`}>
           <span className="text-sm font-semibold text-muted-foreground">AED </span>
           {formatPrice(vehicle.price)}
         </p>

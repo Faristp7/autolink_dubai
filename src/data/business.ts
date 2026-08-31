@@ -8,14 +8,14 @@ export const business = {
   addressLine1: "Sajaya Building – B",
   addressLine2: "Manama Street, Ras Al Khor",
   addressLine3: "Dubai, UAE",
-  phoneDisplay: "+971 4 572 6268",
-  phoneHref: "+97145726268",
+  phoneDisplay: "+971 52 304 7694",
+  phoneHref: "+971523047694",
   /**
    * WhatsApp number in international format without symbols.
    * Currently set to the listed business line — replace when a dedicated
    * WhatsApp number is confirmed by the client.
    */
-  whatsappNumber: "97145726268",
+  whatsappNumber: "971523047694",
   whatsappMessage:
     "Hello AutoLink, I'm interested in one of your vehicles. Could you please share more details?",
   website: "www.autolink.ae",

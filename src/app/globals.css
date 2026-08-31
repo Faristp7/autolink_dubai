@@ -52,6 +52,12 @@
   --color-brand-magenta: var(--brand-magenta);
   --shadow-premium: 0 24px 60px -24px oklch(0 0 0 / 0.75);
   --shadow-glow: 0 18px 48px -18px oklch(0.68 0.21 44 / 0.5);
+  --animate-marquee: marquee 30s linear infinite;
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
 }
 
 :root {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { Mail, Send, CheckCircle2 } from "lucide-react";
+import { Mail, Send, CheckCircle2, Loader2, AlertCircle } from "lucide-react";
 import { z } from "zod";
 import { business } from "@/data/business";
 
@@ -30,6 +30,7 @@ const inquirySchema = z.object({
 });
 
 type Errors = Partial<Record<keyof z.infer<typeof inquirySchema>, string>>;
+type Status = "idle" | "loading" | "success" | "error";
 
 type Props = {
   /** Vehicle context prefilled into the subject and message body. */
@@ -38,15 +39,14 @@ type Props = {
 };
 
 /**
- * Inquiry form fallback for visitors who don't use WhatsApp.
- * Submits by opening the visitor's mail client with a prefilled message
- * addressed to the dealership inbox (no backend required).
+ * Inquiry form that submits to the /api/send-inquiry route, which uses
+ * the Resend SDK to deliver an email to the dealership inbox.
  */
 export function InquiryForm({ vehicleLabel, className }: Props) {
   const [errors, setErrors] = useState<Errors>({});
-  const [sent, setSent] = useState(false);
+  const [status, setStatus] = useState<Status>("idle");
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
     const data = Object.fromEntries(new FormData(form)) as Record<string, string>;
@@ -63,29 +63,34 @@ export function InquiryForm({ vehicleLabel, className }: Props) {
     }
 
     setErrors({});
-    const { name, email, phone, message } = parsed.data;
-    const subject = vehicleLabel
-      ? `Vehicle Inquiry — ${vehicleLabel}`
-      : "Vehicle Inquiry — AutoLink";
-    const body = [
-      vehicleLabel ? `Vehicle: ${vehicleLabel}` : null,
-      `Name: ${name}`,
-      `Email: ${email}`,
-      phone ? `Phone: ${phone}` : null,
-      "",
-      message,
-    ]
-      .filter(Boolean)
-      .join("\n");
+    setStatus("loading");
 
-    window.location.href = `mailto:${business.email}?subject=${encodeURIComponent(
-      subject,
-    )}&body=${encodeURIComponent(body)}`;
-    setSent(true);
+    try {
+      const res = await fetch("/api/send-inquiry", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...parsed.data,
+          vehicleLabel: vehicleLabel ?? "",
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error(`Server responded with ${res.status}`);
+      }
+
+      setStatus("success");
+      form.reset();
+    } catch (err) {
+      console.error("[InquiryForm] submit error:", err);
+      setStatus("error");
+    }
   }
 
   const inputClass =
-    "h-11 w-full rounded-md border border-border bg-surface px-3 text-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-primary";
+    "h-11 w-full rounded-md border border-border bg-surface px-3 text-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-primary disabled:opacity-50";
+
+  const isLoading = status === "loading";
 
   return (
     <form onSubmit={handleSubmit} className={className} noValidate>
@@ -101,6 +106,7 @@ export function InquiryForm({ vehicleLabel, className }: Props) {
             placeholder="Your name"
             className={inputClass}
             aria-invalid={Boolean(errors.name)}
+            disabled={isLoading}
           />
           {errors.name ? <p className="mt-1 text-xs text-primary">{errors.name}</p> : null}
         </div>
@@ -116,6 +122,7 @@ export function InquiryForm({ vehicleLabel, className }: Props) {
             placeholder="Email address"
             className={inputClass}
             aria-invalid={Boolean(errors.email)}
+            disabled={isLoading}
           />
           {errors.email ? <p className="mt-1 text-xs text-primary">{errors.email}</p> : null}
         </div>
@@ -133,6 +140,7 @@ export function InquiryForm({ vehicleLabel, className }: Props) {
           placeholder="Phone number (optional)"
           className={inputClass}
           aria-invalid={Boolean(errors.phone)}
+          disabled={isLoading}
         />
         {errors.phone ? <p className="mt-1 text-xs text-primary">{errors.phone}</p> : null}
       </div>
@@ -152,26 +160,44 @@ export function InquiryForm({ vehicleLabel, className }: Props) {
               : ""
           }
           placeholder="How can we help?"
-          className="w-full resize-y rounded-md border border-border bg-surface px-3 py-2.5 text-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-primary"
+          className="w-full resize-y rounded-md border border-border bg-surface px-3 py-2.5 text-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-primary disabled:opacity-50"
           aria-invalid={Boolean(errors.message)}
+          disabled={isLoading}
         />
         {errors.message ? <p className="mt-1 text-xs text-primary">{errors.message}</p> : null}
       </div>
 
       <button
         type="submit"
-        className="mt-4 inline-flex h-12 w-full items-center justify-center gap-2 rounded-md border border-border px-4 text-sm font-semibold transition-colors hover:bg-secondary"
+        disabled={isLoading || status === "success"}
+        className="mt-4 inline-flex h-12 w-full items-center justify-center gap-2 rounded-md border border-border px-4 text-sm font-semibold transition-colors hover:bg-secondary disabled:opacity-60 disabled:cursor-not-allowed"
       >
-        <Send className="h-4 w-4" aria-hidden="true" />
-        Send Inquiry by Email
+        {isLoading ? (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+            Sending…
+          </>
+        ) : (
+          <>
+            <Send className="h-4 w-4" aria-hidden="true" />
+            Send Inquiry
+          </>
+        )}
       </button>
 
-      {sent ? (
+      {status === "success" ? (
         <p role="status" className="mt-3 flex items-start gap-2 text-xs text-muted-foreground">
           <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
           <span>
-            Your email app should now be open with the inquiry ready to send. If nothing happened,
-            write to{" "}
+            Your inquiry has been sent! We&apos;ll get back to you at{" "}
+            <strong className="text-foreground">info@autolink.ae</strong> during business hours.
+          </span>
+        </p>
+      ) : status === "error" ? (
+        <p role="alert" className="mt-3 flex items-start gap-2 text-xs text-red-500">
+          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+          <span>
+            Something went wrong. Please try again or email us directly at{" "}
             <a
               href={`mailto:${business.email}`}
               className="font-medium text-foreground underline underline-offset-2"
@@ -184,7 +210,7 @@ export function InquiryForm({ vehicleLabel, className }: Props) {
       ) : (
         <p className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
           <Mail className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-          Prefer email? We reply to {business.email} during business hours.
+          We reply to {business.email} during business hours.
         </p>
       )}
     </form>

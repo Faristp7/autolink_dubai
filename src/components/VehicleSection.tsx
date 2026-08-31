@@ -1,132 +1,99 @@
-"use client";
-
-import { useEffect, useMemo, useState } from "react";
-import { categories, type Vehicle } from "@/data/vehicles";
-import { useCars } from "@/lib/carsStore";
-import { VehicleCard } from "./VehicleCard";
-import { VehicleDetailModal } from "./VehicleDetailModal";
 import { Reveal } from "./Reveal";
-import { cn } from "@/lib/utils";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-} from "@/components/ui/carousel";
+
+const brands = [
+  "Toyota",
+  "Nissan",
+  "Mercedes-Benz",
+  "BMW",
+  "Land Cruiser",
+  "Lexus",
+  "Range Rover",
+  "Mitsubishi",
+  "Porsche",
+  "Audi",
+  "Honda",
+  "Ford",
+];
+
+const photos = [
+  { src: "/cars/v1.jpg", alt: "Full-size luxury SUV in a dark studio" },
+  { src: "/cars/v4.jpg", alt: "Luxury performance saloon with studio lighting" },
+  { src: "/cars/v3.jpg", alt: "Off-road 4x4 vehicle in a showroom" },
+  { src: "/cars/v2.jpg", alt: "Executive sedan side profile" },
+  { src: "/cars/v5.jpg", alt: "Double-cab pickup truck" },
+  { src: "/cars/v6.jpg", alt: "Specialized utility van" },
+];
+
+function MarqueeRow({ reverse = false }: { reverse?: boolean }) {
+  const items = [...brands, ...brands];
+  return (
+    <div className="flex overflow-hidden" aria-hidden="true">
+      <ul
+        className="flex min-w-full shrink-0 animate-marquee items-center gap-0"
+        style={reverse ? { animationDirection: "reverse" } : undefined}
+      >
+        {items.map((brand, i) => (
+          <li key={i} className="flex shrink-0 items-center">
+            <span className="px-8 text-2xl font-extrabold tracking-[0.18em] whitespace-nowrap text-muted-foreground/60 uppercase transition-colors hover:text-primary sm:text-3xl">
+              {brand}
+            </span>
+            <span className="h-1.5 w-1.5 rounded-full bg-primary/50" aria-hidden="true" />
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 export function VehicleSection() {
-  const vehicles = useCars();
-  const [active, setActive] = useState<(typeof categories)[number]>("All");
-  const [selected, setSelected] = useState<Vehicle | null>(null);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const openDetails = (vehicle: Vehicle) => {
-    setSelected(vehicle);
-    setModalOpen(true);
-  };
-
-  const filtered = useMemo(
-    () => (active === "All" ? vehicles : vehicles.filter((v) => v.category === active)),
-    [active, vehicles],
-  );
-
-  // Prevent hydration warning/mismatch for localStorage data
-  if (!mounted) return null;
-
-  // Hide the entire Vehicles section when there are no listings.
-  if (vehicles.length === 0) return null;
-
   return (
-    <section id="vehicles" className="scroll-mt-24 py-20 sm:py-28">
+    <section id="gallery" className="scroll-mt-24 overflow-hidden py-20 sm:py-28">
       <div className="section-shell">
         <Reveal className="max-w-2xl">
-          <p className="eyebrow">Inventory</p>
+          <p className="eyebrow">Our Collection</p>
           <h2 className="mt-4 text-[clamp(1.85rem,4.5vw,3rem)] leading-tight font-extrabold tracking-tight">
-            Explore Our Vehicles
+            The Brands We Live For
           </h2>
           <p className="mt-4 text-muted-foreground">
-            Discover carefully selected vehicles available at AutoLink.
+            From luxury saloons to off-road legends — AutoLink sources across
+            the world's most trusted marques.
           </p>
         </Reveal>
-
-        <Reveal className="mt-9">
-          <div
-            role="tablist"
-            aria-label="Filter vehicles by category"
-            className="-mx-5 flex ml-auto snap-x gap-2 overflow-x-auto px-5 pb-2 md:mx-0 md:flex-wrap md:px-0"
-          >
-            {categories.map((category) => {
-              const selected = active === category;
-              return (
-                <button
-                  key={category}
-                  type="button"
-                  role="tab"
-                  aria-selected={selected}
-                  onClick={() => setActive(category)}
-                  className={cn(
-                    "h-10 shrink-0 snap-start rounded-md border px-4 text-sm font-medium whitespace-nowrap transition-colors",
-                    selected
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border text-muted-foreground hover:bg-secondary hover:text-foreground",
-                  )}
-                >
-                  {category}
-                </button>
-              );
-            })}
-          </div>
-        </Reveal>
-
-        {filtered.length > 0 ? (
-          <>
-            {/* Mobile Carousel View */}
-            <div className="block sm:hidden mt-10">
-              <Carousel
-                opts={{
-                  align: "start",
-                }}
-                className="w-full"
-              >
-                <CarouselContent className="-ml-4 pb-4">
-                  {filtered.map((vehicle, i) => (
-                    <CarouselItem key={vehicle.id} className="basis-[85%] pl-4">
-                      <Reveal delay={Math.min(i, 3) * 90} className="h-full">
-                        <VehicleCard vehicle={vehicle} onViewDetails={openDetails} />
-                      </Reveal>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-              </Carousel>
-            </div>
-
-            {/* Desktop Grid View */}
-            <ul className="hidden sm:grid mt-10 grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {filtered.map((vehicle, i) => (
-                <Reveal as="li" key={vehicle.id} delay={Math.min(i, 3) * 90} className="h-full">
-                  <VehicleCard vehicle={vehicle} onViewDetails={openDetails} />
-                </Reveal>
-              ))}
-            </ul>
-          </>
-        ) : (
-          <p className="mt-12 rounded-xl border border-dashed border-border bg-surface p-10 text-center text-muted-foreground">
-            No vehicles listed in this category right now. Contact our team for current
-            availability.
-          </p>
-        )}
-
-        <p className="mt-8 text-xs text-muted-foreground">
-          Listings shown are sample entries for presentation. Live AutoLink inventory will be
-          published here.
-        </p>
       </div>
 
-      <VehicleDetailModal vehicle={selected} open={modalOpen} onOpenChange={setModalOpen} />
+      <Reveal className="mt-10">
+        <div className="border-y border-border py-6" role="presentation">
+          <MarqueeRow />
+        </div>
+      </Reveal>
+
+      <div className="section-shell">
+        <ul className="mt-10 grid grid-cols-2 gap-4 lg:grid-cols-3">
+          {photos.map((photo, i) => (
+            <Reveal
+              as="li"
+              key={photo.src}
+              delay={Math.min(i, 3) * 90}
+              className={i === 0 ? "col-span-2 lg:col-span-1" : ""}
+            >
+              <figure className="group relative aspect-[4/3] overflow-hidden rounded-xl border border-border">
+                <img
+                  src={photo.src}
+                  alt={photo.alt}
+                  width={1200}
+                  height={900}
+                  loading="lazy"
+                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <div
+                  aria-hidden="true"
+                  className="absolute inset-0 bg-gradient-to-t from-background/50 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                />
+              </figure>
+            </Reveal>
+          ))}
+        </ul>
+      </div>
     </section>
   );
 }
