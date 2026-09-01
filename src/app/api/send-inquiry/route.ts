@@ -13,8 +13,8 @@ const inquirySchema = z.object({
   vehicleLabel: z.string().trim().max(150).optional().or(z.literal("")),
 });
 
-const TO_EMAIL = "info@autolink.ae";
-const FROM_EMAIL = "AutoLink Inquiry <onboarding@resend.dev>";
+const TO_EMAIL = "info@autolinkcars.co";
+const FROM_EMAIL = "AutoLink Cars <info@autolinkcars.co>";
 
 export async function POST(req: NextRequest) {
   let body: unknown;

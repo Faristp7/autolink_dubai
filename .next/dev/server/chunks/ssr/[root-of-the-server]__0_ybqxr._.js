@@ -1550,27 +1550,27 @@ const brands = [
 ];
 const photos = [
     {
-        src: "/cars/v1.jpg",
+        src: "/cars/camary1.png",
         alt: "Full-size luxury SUV in a dark studio"
     },
     {
-        src: "/cars/v4.jpg",
+        src: "/cars/corola2.png",
         alt: "Luxury performance saloon with studio lighting"
     },
     {
-        src: "/cars/v3.jpg",
+        src: "/cars/hondacivic3.png",
         alt: "Off-road 4x4 vehicle in a showroom"
     },
     {
-        src: "/cars/v2.jpg",
+        src: "/cars/landCruiser4.png",
         alt: "Executive sedan side profile"
     },
     {
-        src: "/cars/v5.jpg",
+        src: "/cars/accent5.png",
         alt: "Double-cab pickup truck"
     },
     {
-        src: "/cars/v6.jpg",
+        src: "/cars/nissanPatrol6.png",
         alt: "Specialized utility van"
     }
 ];

@@ -16,12 +16,12 @@ const brands = [
 ];
 
 const photos = [
-  { src: "/cars/v1.jpg", alt: "Full-size luxury SUV in a dark studio" },
-  { src: "/cars/v4.jpg", alt: "Luxury performance saloon with studio lighting" },
-  { src: "/cars/v3.jpg", alt: "Off-road 4x4 vehicle in a showroom" },
-  { src: "/cars/v2.jpg", alt: "Executive sedan side profile" },
-  { src: "/cars/v5.jpg", alt: "Double-cab pickup truck" },
-  { src: "/cars/v6.jpg", alt: "Specialized utility van" },
+  { src: "/cars/camary1.png", alt: "Full-size luxury SUV in a dark studio" },
+  { src: "/cars/corola2.png", alt: "Luxury performance saloon with studio lighting" },
+  { src: "/cars/hondacivic3.png", alt: "Off-road 4x4 vehicle in a showroom" },
+  { src: "/cars/landCruiser4.png", alt: "Executive sedan side profile" },
+  { src: "/cars/accent5.png", alt: "Double-cab pickup truck" },
+  { src: "/cars/nissanPatrol6.png", alt: "Specialized utility van" },
 ];
 
 function MarqueeRow({ reverse = false }: { reverse?: boolean }) {
