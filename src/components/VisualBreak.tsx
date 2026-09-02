@@ -1,6 +1,6 @@
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
-import breakImage from "@/assets/break.jpg";
+import breakImage from "@/assets/break.png";
 
 export function VisualBreak() {
   return (
