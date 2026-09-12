@@ -1,3 +1,10 @@
+"use client";
+
+import { useState } from "react";
+import { type Vehicle } from "@/data/vehicles";
+import { useCars } from "@/lib/carsStore";
+import { VehicleCard } from "./VehicleCard";
+import { VehicleDetailModal } from "./VehicleDetailModal";
 import { Reveal } from "./Reveal";
 
 const brands = [
@@ -12,16 +19,7 @@ const brands = [
   "Porsche",
   "Audi",
   "Honda",
-  "Ford",
-];
-
-const photos = [
-  { src: "/cars/camary1.png", alt: "Full-size luxury SUV in a dark studio" },
-  { src: "/cars/corola2.png", alt: "Luxury performance saloon with studio lighting" },
-  { src: "/cars/hondacivic3.png", alt: "Off-road 4x4 vehicle in a showroom" },
-  { src: "/cars/landCruiser4.png", alt: "Executive sedan side profile" },
-  { src: "/cars/accent5.png", alt: "Double-cab pickup truck" },
-  { src: "/cars/nissanPatrol6.png", alt: "Specialized utility van" },
+  "Hyundai",
 ];
 
 function MarqueeRow({ reverse = false }: { reverse?: boolean }) {
@@ -46,54 +44,63 @@ function MarqueeRow({ reverse = false }: { reverse?: boolean }) {
 }
 
 export function VehicleSection() {
+  const vehicles = useCars();
+  const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const handleViewDetails = (vehicle: Vehicle) => {
+    setSelectedVehicle(vehicle);
+    setModalOpen(true);
+  };
+
   return (
-    <section id="gallery" className="scroll-mt-24 overflow-hidden py-20 sm:py-28">
+    <section id="vehicles" className="scroll-mt-24 overflow-hidden py-20 sm:py-28">
+      {/* Brand Showcase Header */}
       <div className="section-shell">
         <Reveal className="max-w-2xl">
-          <p className="eyebrow">Our Collection</p>
+          <p className="eyebrow">Our Fleet & Collection</p>
           <h2 className="mt-4 text-[clamp(1.85rem,4.5vw,3rem)] leading-tight font-extrabold tracking-tight">
-            The Brands We Live For
+            Explore Vehicles & Variants
           </h2>
           <p className="mt-4 text-muted-foreground">
-            From luxury saloons to off-road legends — AutoLink sources across
-            the world's most trusted marques.
+            Explore full vehicle specifications, trims, and variants below.
           </p>
         </Reveal>
       </div>
 
+      {/* Brand Marquee */}
       <Reveal className="mt-10">
         <div className="border-y border-border py-6" role="presentation">
           <MarqueeRow />
         </div>
       </Reveal>
 
-      <div className="section-shell">
-        <ul className="mt-10 grid grid-cols-2 gap-4 lg:grid-cols-3">
-          {photos.map((photo, i) => (
-            <Reveal
-              as="li"
-              key={photo.src}
-              delay={Math.min(i, 3) * 90}
-              className={i === 0 ? "col-span-2 lg:col-span-1" : ""}
-            >
-              <figure className="group relative aspect-[4/3] overflow-hidden rounded-xl border border-border">
-                <img
-                  src={photo.src}
-                  alt={photo.alt}
-                  width={1200}
-                  height={900}
-                  loading="lazy"
-                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-                <div
-                  aria-hidden="true"
-                  className="absolute inset-0 bg-gradient-to-t from-background/50 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-                />
-              </figure>
-            </Reveal>
-          ))}
-        </ul>
+      {/* Vehicles Inventory Showcase */}
+      <div className="section-shell mt-12">
+        {/* Vehicles Grid */}
+        {vehicles.length > 0 ? (
+          <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {vehicles.map((vehicle, i) => (
+              <Reveal as="li" key={vehicle.id} delay={Math.min(i, 3) * 80}>
+                <VehicleCard vehicle={vehicle} onViewDetails={handleViewDetails} />
+              </Reveal>
+            ))}
+          </ul>
+        ) : (
+          <div className="rounded-xl border border-dashed border-border p-12 text-center">
+            <p className="text-sm text-muted-foreground">
+              No vehicles available right now.
+            </p>
+          </div>
+        )}
       </div>
+
+      {/* Detail Modal */}
+      <VehicleDetailModal
+        vehicle={selectedVehicle}
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+      />
     </section>
   );
 }

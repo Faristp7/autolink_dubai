@@ -2,34 +2,45 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Download, LogOut, Pencil, Plus, Trash2, Upload, X } from "lucide-react";
-import { categories, type Vehicle, type VehicleCategory } from "@/data/vehicles";
+import { type Vehicle } from "@/data/vehicles";
 import { getCars, newCarId, resetCars, saveCars, useCars } from "@/lib/carsStore";
 
 const ADMIN_PASSWORD = "autolink2026";
 const SESSION_KEY = "autolink_admin_ok";
 
-type Draft = Omit<Vehicle, "year" | "mileage" | "price"> & {
+type Draft = Omit<Vehicle, "year" | "mileage" | "price" | "image"> & {
+  image: string;
   year: string;
   mileage: string;
   price: string;
+  variant: string;
+  engine: string;
+  specs: string;
 };
 
 const emptyDraft = (): Draft => ({
   id: newCarId(),
   name: "",
   brand: "",
-  year: "",
-  mileage: "",
+  variant: "",
+  engine: "",
+  specs: "",
+  year: String(new Date().getFullYear()),
+  mileage: "0",
   fuel: "Petrol",
   transmission: "Automatic",
-  price: "",
+  price: "0",
+  image: "/cars/camary1.png",
   images: [],
-  category: "SUVs",
   featured: false,
 });
 
 const toDraft = (v: Vehicle): Draft => ({
   ...v,
+  image: v.image || v.images[0] || "/cars/camary1.png",
+  variant: v.variant || "",
+  engine: v.engine || "",
+  specs: v.specs || "",
   year: String(v.year),
   mileage: String(v.mileage),
   price: String(v.price),
@@ -119,6 +130,7 @@ function CarManager({ onLogout }: { onLogout: () => void }) {
   const save = () => {
     if (!draft) return;
     if (!draft.name.trim()) return flash("Please enter the car name.");
+    const primaryImg = draft.image || draft.images[0] || "/cars/camary1.png";
     const car: Vehicle = {
       ...draft,
       name: draft.name.trim(),
@@ -126,6 +138,8 @@ function CarManager({ onLogout }: { onLogout: () => void }) {
       year: Number(draft.year) || new Date().getFullYear(),
       mileage: Number(draft.mileage) || 0,
       price: Number(draft.price) || 0,
+      image: primaryImg,
+      images: draft.images.length > 0 ? draft.images : [primaryImg],
     };
     const list = getCars();
     const exists = list.some((c) => c.id === car.id);
@@ -156,7 +170,22 @@ function CarManager({ onLogout }: { onLogout: () => void }) {
   };
 
   const download = () => {
-    const blob = new Blob([JSON.stringify(getCars(), null, 2)], { type: "application/json" });
+    const list = getCars().map((car) => ({
+      id: car.id,
+      name: car.name,
+      brand: car.brand,
+      variant: car.variant || "",
+      engine: car.engine || "",
+      ...(car.specs ? { specs: car.specs } : {}),
+      year: car.year,
+      mileage: car.mileage,
+      fuel: car.fuel,
+      transmission: car.transmission,
+      price: car.price,
+      image: car.image || car.images[0] || "/cars/camary1.png",
+      featured: Boolean(car.featured),
+    }));
+    const blob = new Blob([JSON.stringify(list, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -259,44 +288,27 @@ function CarManager({ onLogout }: { onLogout: () => void }) {
                 onChange={(v) => setDraft({ ...draft, brand: v })}
               />
               <Text
+                label="Variant / Trim (e.g. 2.5L GLE, VXR Executive)"
+                value={draft.variant}
+                onChange={(v) => setDraft({ ...draft, variant: v })}
+              />
+              <Text
+                label="Engine (e.g. 2.5L 4-Cyl, 3.5L V6 Turbo)"
+                value={draft.engine}
+                onChange={(v) => setDraft({ ...draft, engine: v })}
+              />
+              <Text
+                label="Regional Specs (e.g. GCC Specs)"
+                value={draft.specs}
+                onChange={(v) => setDraft({ ...draft, specs: v })}
+              />
+              <Text
                 label="Year"
                 value={draft.year}
                 onChange={(v) => setDraft({ ...draft, year: v })}
                 inputMode="numeric"
               />
-              <Text
-                label="Mileage (KM)"
-                value={draft.mileage}
-                onChange={(v) => setDraft({ ...draft, mileage: v })}
-                inputMode="numeric"
-              />
-              <Text
-                label="Price (AED)"
-                value={draft.price}
-                onChange={(v) => setDraft({ ...draft, price: v })}
-                inputMode="numeric"
-              />
-              <div>
-                <label className={labelCls} htmlFor="cat">
-                  Category
-                </label>
-                <select
-                  id="cat"
-                  className={`${field} mt-2`}
-                  value={draft.category}
-                  onChange={(e) =>
-                    setDraft({ ...draft, category: e.target.value as VehicleCategory })
-                  }
-                >
-                  {categories
-                    .filter((c) => c !== "All")
-                    .map((c) => (
-                      <option key={c} value={c}>
-                        {c}
-                      </option>
-                    ))}
-                </select>
-              </div>
+
               <div>
                 <label className={labelCls} htmlFor="fuel">
                   Fuel
@@ -345,7 +357,7 @@ function CarManager({ onLogout }: { onLogout: () => void }) {
 
             <div className="mt-6">
               <p className={labelCls}>Photos</p>
-              <div className="mt-3 flex flex-wrap gap-3">
+              <div className="mt-3 flex flex-wrap items-center gap-3">
                 {draft.images.map((src, i) => (
                   <div
                     key={`${src.slice(0, 24)}-${i}`}
@@ -364,8 +376,8 @@ function CarManager({ onLogout }: { onLogout: () => void }) {
                     </button>
                   </div>
                 ))}
-                <label className="flex h-24 w-32 cursor-pointer items-center justify-center rounded-md border border-dashed border-border text-xs text-muted-foreground">
-                  + Add photo
+                <label className="flex h-24 w-32 cursor-pointer flex-col items-center justify-center rounded-md border border-dashed border-border text-xs text-muted-foreground hover:border-primary">
+                  <span>+ Upload Photo</span>
                   <input
                     type="file"
                     accept="image/*"
@@ -374,6 +386,37 @@ function CarManager({ onLogout }: { onLogout: () => void }) {
                     onChange={(e) => addImages(e.target.files)}
                   />
                 </label>
+              </div>
+              <div className="mt-3 flex max-w-md gap-2">
+                <input
+                  type="text"
+                  placeholder="Or enter image path e.g. /cars/newcar.jpg"
+                  className={field}
+                  id="custom-img-input"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      const val = (e.target as HTMLInputElement).value.trim();
+                      if (val) {
+                        setDraft({ ...draft, images: [...draft.images, val] });
+                        (e.target as HTMLInputElement).value = "";
+                      }
+                    }
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const input = document.getElementById("custom-img-input") as HTMLInputElement;
+                    if (input && input.value.trim()) {
+                      setDraft({ ...draft, images: [...draft.images, input.value.trim()] });
+                      input.value = "";
+                    }
+                  }}
+                  className="inline-flex h-11 shrink-0 items-center justify-center rounded-md border border-border px-4 text-xs font-semibold"
+                >
+                  Add URL
+                </button>
               </div>
             </div>
 
@@ -408,17 +451,19 @@ function CarManager({ onLogout }: { onLogout: () => void }) {
                 className="flex flex-wrap items-center gap-4 rounded-xl border border-border bg-card p-4"
               >
                 <img
-                  src={car.images[0] ?? "/cars/v1.jpg"}
+                  src={car.images[0] ?? "/cars/camary1.png"}
                   alt=""
                   className="h-20 w-28 rounded-md object-cover"
                 />
                 <div className="min-w-40 flex-1">
                   <p className="text-xs tracking-wider text-muted-foreground uppercase">
-                    {car.brand}
+                    {car.brand} {car.specs ? `· ${car.specs}` : ""}
                   </p>
-                  <h3 className="font-bold">{car.name}</h3>
+                  <h3 className="font-bold">
+                    {car.name} {car.variant ? <span className="text-sm font-normal text-muted-foreground">({car.variant})</span> : null}
+                  </h3>
                   <p className="text-sm text-muted-foreground">
-                    {car.year} · {car.category} · AED {car.price.toLocaleString("en-AE")}
+                    {car.year} {car.engine ? `· ${car.engine}` : ""}
                   </p>
                 </div>
                 <div className="flex gap-2">

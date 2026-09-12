@@ -3,21 +3,20 @@
 import { useSyncExternalStore } from "react";
 import { vehicles as seedVehicles, type Vehicle } from "@/data/vehicles";
 
-const STORAGE_KEY = "autolink_cars_v1";
-
-let cache: Vehicle[] | null = null;
+let memoryCars: Vehicle[] | null = null;
 const listeners = new Set<() => void>();
 
 function read(): Vehicle[] {
-  if (typeof window === "undefined") return seedVehicles;
-  if (cache) return cache;
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    cache = raw ? (JSON.parse(raw) as Vehicle[]) : seedVehicles;
-  } catch {
-    cache = seedVehicles;
+  // Always clean up any stale localStorage if it exists so users see git updates
+  if (typeof window !== "undefined") {
+    try {
+      window.localStorage.removeItem("autolink_cars_v2");
+      window.localStorage.removeItem("autolink_cars");
+    } catch {
+      /* ignore */
+    }
   }
-  return cache;
+  return memoryCars ?? seedVehicles;
 }
 
 function emit() {
@@ -29,22 +28,12 @@ export function getCars(): Vehicle[] {
 }
 
 export function saveCars(next: Vehicle[]) {
-  cache = next;
-  try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-  } catch {
-    /* storage full or unavailable */
-  }
+  memoryCars = next;
   emit();
 }
 
 export function resetCars() {
-  cache = null;
-  try {
-    window.localStorage.removeItem(STORAGE_KEY);
-  } catch {
-    /* ignore */
-  }
+  memoryCars = null;
   emit();
 }
 

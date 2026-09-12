@@ -1625,7 +1625,7 @@ function MarqueeRow({ reverse = false }) {
 }
 function VehicleSection() {
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
-        id: "gallery",
+        id: "vehicles",
         className: "scroll-mt-24 overflow-hidden py-20 sm:py-28",
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2037,94 +2037,112 @@ const navLinks = [
 
 module.exports = [
     {
-        "id": "demo-1",
-        "name": "Full-Size Luxury SUV",
-        "brand": "Sample Brand",
-        "year": 2022,
-        "mileage": 45000,
-        "fuel": "Petrol",
+        "id": "car-1",
+        "name": "Camry",
+        "brand": "Toyota",
+        "variant": "2.5L GLE Special Edition",
+        "engine": "2.5L 4-Cylinder",
+        "specs": "GCC Specs",
+        "year": 2024,
+        "mileage": 0,
+        "fuel": "Petrol / Hybrid",
         "transmission": "Automatic",
-        "price": 189000,
+        "price": 0,
         "images": [
-            "/cars/v1.jpg"
+            "/cars/camary1.png"
         ],
-        "category": "SUVs",
+        "category": "Sedans",
         "featured": true
     },
     {
-        "id": "demo-2",
-        "name": "Executive Sedan",
-        "brand": "Sample Brand",
-        "year": 2021,
-        "mileage": 62000,
+        "id": "car-2",
+        "name": "Corolla",
+        "brand": "Toyota",
+        "variant": "1.8L XLI Executive",
+        "engine": "1.8L 4-Cylinder",
+        "specs": "GCC Specs",
+        "year": 2023,
+        "mileage": 0,
         "fuel": "Petrol",
-        "transmission": "Automatic",
-        "price": 145000,
+        "transmission": "CVT Automatic",
+        "price": 0,
         "images": [
-            "/cars/v2.jpg"
+            "/cars/corola2.png"
         ],
         "category": "Sedans",
         "featured": false
     },
     {
-        "id": "demo-3",
-        "name": "Off-Road Utility 4×4",
-        "brand": "Sample Brand",
-        "year": 2020,
-        "mileage": 88000,
-        "fuel": "Diesel",
-        "transmission": "Manual",
-        "price": 98000,
+        "id": "car-3",
+        "name": "Civic",
+        "brand": "Honda",
+        "variant": "1.5T Sport Edition",
+        "engine": "1.5L VTEC Turbo",
+        "specs": "GCC Specs",
+        "year": 2024,
+        "mileage": 0,
+        "fuel": "Petrol",
+        "transmission": "Automatic",
+        "price": 0,
         "images": [
-            "/cars/v3.jpg"
+            "/cars/hondacivic3.png"
         ],
-        "category": "4×4",
+        "category": "Sedans",
         "featured": false
     },
     {
-        "id": "demo-4",
-        "name": "Luxury Performance Saloon",
-        "brand": "Sample Brand",
-        "year": 2023,
-        "mileage": 18000,
+        "id": "car-4",
+        "name": "Land Cruiser 300",
+        "brand": "Toyota",
+        "variant": "3.5T VXR Twin-Turbo",
+        "engine": "3.5L V6 Twin-Turbo",
+        "specs": "GCC Specs",
+        "year": 2024,
+        "mileage": 0,
         "fuel": "Petrol",
-        "transmission": "Automatic",
-        "price": 265000,
+        "transmission": "10-Speed Automatic",
+        "price": 0,
         "images": [
-            "/cars/v4.jpg"
+            "/cars/landCruiser4.png"
         ],
-        "category": "Luxury",
+        "category": "SUVs",
         "featured": true
     },
     {
-        "id": "demo-5",
-        "name": "Double-Cab Pickup",
-        "brand": "Sample Brand",
-        "year": 2021,
-        "mileage": 104000,
-        "fuel": "Diesel",
-        "transmission": "Manual",
-        "price": 72000,
+        "id": "car-5",
+        "name": "Accent",
+        "brand": "Hyundai",
+        "variant": "1.5L Smart Comfort",
+        "engine": "1.5L 4-Cylinder",
+        "specs": "GCC Specs",
+        "year": 2023,
+        "mileage": 0,
+        "fuel": "Petrol",
+        "transmission": "Automatic",
+        "price": 0,
         "images": [
-            "/cars/v5.jpg"
+            "/cars/accent5.png"
         ],
-        "category": "Commercial",
+        "category": "Sedans",
         "featured": false
     },
     {
-        "id": "demo-6",
-        "name": "Specialized Utility Van",
-        "brand": "Sample Brand",
-        "year": 2022,
-        "mileage": 51000,
-        "fuel": "Diesel",
-        "transmission": "Automatic",
-        "price": 89000,
+        "id": "car-6",
+        "name": "Patrol V8",
+        "brand": "Nissan",
+        "variant": "5.6L V8 LE Platinum Reserve",
+        "engine": "5.6L V8 Engine",
+        "specs": "GCC Specs",
+        "year": 2024,
+        "mileage": 0,
+        "fuel": "Petrol",
+        "transmission": "7-Speed Automatic",
+        "price": 0,
         "images": [
-            "/cars/v6.jpg"
+            "/cars/nissanPatrol6.png"
         ],
-        "category": "Specialized Vehicles",
-        "featured": false
+        "category": "SUVs",
+        "featured": true
     }
 ];
 }),

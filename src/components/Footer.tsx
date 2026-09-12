@@ -66,10 +66,16 @@ export function Footer() {
       </div>
 
       <div className="border-t border-border">
-        <div className="section-shell py-6">
+        <div className="section-shell flex items-center justify-between py-6">
           <p className="text-xs text-muted-foreground">
             © 2026 {business.legalName}. All rights reserved.
           </p>
+          <a
+            href="/admin"
+            className="text-xs text-muted-foreground/60 transition-colors hover:text-muted-foreground"
+          >
+            Car Manager
+          </a>
         </div>
       </div>
     </footer>

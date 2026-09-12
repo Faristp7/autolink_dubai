@@ -14,9 +14,6 @@ import { business, whatsappLink } from "@/data/business";
 import { cn } from "@/lib/utils";
 import { InquiryForm } from "./InquiryForm";
 
-const formatNumber = (value: number) =>
-  new Intl.NumberFormat("en-AE", { maximumFractionDigits: 0 }).format(value);
-
 type Props = {
   vehicle: Vehicle | null;
   open: boolean;
@@ -39,13 +36,16 @@ export function VehicleDetailModal({ vehicle, open, onOpenChange }: Props) {
   const specs = [
     { label: "Brand", value: vehicle.brand, show: true },
     { label: "Model", value: vehicle.name, show: true },
+    { label: "Variant", value: vehicle.variant || "Standard", show: Boolean(vehicle.variant) },
+    { label: "Engine", value: vehicle.engine || "Standard Engine", show: Boolean(vehicle.engine) },
     { label: "Year", value: String(vehicle.year), show: true },
-    { label: "Mileage", value: `${formatNumber(vehicle.mileage)} KM`, show: vehicle.mileage > 0 },
     { label: "Transmission", value: vehicle.transmission, show: true },
     { label: "Fuel Type", value: vehicle.fuel, show: true },
-    { label: "Category", value: vehicle.category, show: true },
+    { label: "Regional Specs", value: vehicle.specs || "", show: Boolean(vehicle.specs) },
     { label: "Location", value: "Ras Al Khor, Dubai", show: true },
-  ];
+  ].filter((s) => s.show);
+
+  const whatsappMessage = `Hello AutoLink, I am interested in the ${vehicle.brand} ${vehicle.name}${vehicle.variant ? ` (${vehicle.variant})` : ""} - ${vehicle.year}. Could you please share more details?`;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -55,7 +55,7 @@ export function VehicleDetailModal({ vehicle, open, onOpenChange }: Props) {
           <div className="flex flex-col gap-3 bg-surface p-4 sm:p-5">
             <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
               <img
-                src={vehicle.images[activeImage]}
+                src={vehicle.image || vehicle.images[activeImage] || vehicle.images[0] || "/cars/camary1.png"}
                 alt={`${vehicle.brand} ${vehicle.name} — photo ${activeImage + 1}`}
                 className="h-full w-full object-cover"
               />
@@ -91,42 +91,46 @@ export function VehicleDetailModal({ vehicle, open, onOpenChange }: Props) {
           {/* Details */}
           <div className="flex flex-col p-5 sm:p-6">
             <DialogHeader className="text-left">
-              <p className="text-xs tracking-[0.18em] text-muted-foreground uppercase">
-                {vehicle.brand}
-              </p>
-              <DialogTitle className="mt-1 text-2xl font-extrabold tracking-tight">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-bold tracking-[0.18em] text-primary uppercase">
+                  {vehicle.brand}
+                </p>
+                {vehicle.specs ? (
+                  <span className="text-[0.65rem] font-bold tracking-widest uppercase bg-secondary px-2 py-0.5 rounded border border-border">
+                    {vehicle.specs}
+                  </span>
+                ) : null}
+              </div>
+
+              <DialogTitle className="mt-1 text-2xl font-extrabold tracking-tight text-foreground">
                 {vehicle.name}
               </DialogTitle>
+
+              {vehicle.variant ? (
+                <p className="mt-0.5 text-sm font-semibold text-muted-foreground">
+                  {vehicle.variant}
+                </p>
+              ) : null}
+
               <DialogDescription className="sr-only">
-                Full specifications and inquiry options for the {vehicle.name}.
+                Full specifications and inquiry options for the {vehicle.brand} {vehicle.name}.
               </DialogDescription>
             </DialogHeader>
 
-            <p className={cn("mt-3 text-2xl font-extrabold tracking-tight", vehicle.price === 0 && "invisible")}>
-              <span className="text-sm font-semibold text-muted-foreground">AED </span>
-              {formatNumber(vehicle.price)}
-            </p>
-
-            <dl className="mt-5 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-border pt-5 text-sm">
+            <dl className="mt-5 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-border pt-4 text-sm">
               {specs.map((item) => (
-                <div
-                  key={item.label}
-                  className={cn("min-w-0", !item.show && "invisible")}
-                  aria-hidden={!item.show}
-                >
-                  <dt className="text-[0.7rem] tracking-wider text-muted-foreground uppercase">
+                <div key={item.label} className="min-w-0">
+                  <dt className="text-[0.68rem] font-semibold tracking-wider text-muted-foreground uppercase">
                     {item.label}
                   </dt>
-                  <dd className="truncate font-medium">{item.value}</dd>
+                  <dd className="truncate font-medium text-foreground">{item.value}</dd>
                 </div>
               ))}
             </dl>
 
             <div className="mt-auto flex flex-col gap-2 pt-6">
               <a
-                href={whatsappLink(
-                  `Hello AutoLink, I'm interested in the ${vehicle.name} (${vehicle.year})${vehicle.price > 0 ? ` listed at AED ${formatNumber(vehicle.price)}` : ""}. Could you please share more details?`,
-                )}
+                href={whatsappLink(whatsappMessage)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-glow transition-transform hover:-translate-y-0.5"
@@ -153,7 +157,7 @@ export function VehicleDetailModal({ vehicle, open, onOpenChange }: Props) {
               {showForm ? (
                 <InquiryForm
                   className="mt-1 border-t border-border pt-4"
-                  vehicleLabel={`${vehicle.brand} ${vehicle.name} (${vehicle.year})`}
+                  vehicleLabel={`${vehicle.brand} ${vehicle.name} ${vehicle.variant ? `(${vehicle.variant})` : ""} - ${vehicle.year}`}
                 />
               ) : null}
             </div>
