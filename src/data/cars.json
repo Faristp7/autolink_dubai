@@ -9,7 +9,7 @@
     "mileage": 0,
     "fuel": "Petrol / Hybrid",
     "transmission": "Automatic",
-    "price": 0,
+    "price": 1000,
     "image": "/cars/camary1.png",
     "featured": true
   },
